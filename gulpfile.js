@@ -1,12 +1,12 @@
 "use strict";
 
+var argv = require('yargs').argv;
+
 var gulp = require('gulp'),
     jshint = require('gulp-jshint'),
     mochaStream = require('spawn-mocha-parallel').mochaStream,
     utils = require('./lib/utils'),
     _ = require('lodash');
-
-var argv = require('yargs').argv;
 
 var newMocha = function(opts) {
   opts = opts || {};
