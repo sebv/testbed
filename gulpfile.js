@@ -12,7 +12,9 @@ var newMocha = function(opts) {
   opts = opts || {};
   _.defaults(opts, {
     concurrency: 1,
-    liveOutput: true
+    liveOutput: true,
+    errorSummary: false,
+    flags: ['--colors']
   });
   return mochaStream(opts);
 };
