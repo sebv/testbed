@@ -25,7 +25,7 @@ gulp.task('jshint', function() {
         .pipe(jshint.reporter('default'));
 });
 
-gulp.task('test-ios', function () {
+function runTests(platform) {
   var env = _(process.env).clone();
 
   // config selection
@@ -36,13 +36,25 @@ gulp.task('test-ios', function () {
     env.TESTBED_CONFIG = c.toLowerCase();
   }).value();
 
-  // ios version selection
-  var versions = ['ios81', 'ios80', 'ios71', 'ios70'];
-  _.chain(versions).filter(function (v) {
-    return utils.booleanFlag(v, argv);
-  }).each(function (v) {
-    env.IOS_VERSION = v.toLowerCase();
-  }).value();
+  if(platform === 'ios') {
+    // ios version selection
+    var iosVersions = ['ios81', 'ios80', 'ios71', 'ios70'];
+    _.chain(iosVersions).filter(function (v) {
+      return utils.booleanFlag(v, argv);
+    }).each(function (v) {
+      env.IOS_VERSION = v.toLowerCase();
+    }).value();
+  }
+
+  if(platform === 'android') {
+    // android version selection
+    var androidVersions = ['api18', 'api19'];
+    _.chain(androidVersions).filter(function (v) {
+      return utils.booleanFlag(v, argv);
+    }).each(function (v) {
+      env.ANDROID_VERSION = v.toLowerCase();
+    }).value();
+  }
 
   // appium version selection
   if(argv.appiumVersion) {
@@ -50,7 +62,7 @@ gulp.task('test-ios', function () {
   }
 
   // device selection
-  var devices = ['iphone', 'ipad'];
+  var devices = ['iphone', 'ipad', 'phone', 'tablet'];
   _.chain(devices).filter(function (d) {
     return utils.booleanFlag(d, argv);
   }).each(function (d) {
@@ -66,9 +78,23 @@ gulp.task('test-ios', function () {
   }).value();
 
   var mocha = newMocha({env: env});
-  return gulp.src('lib/specs/test-ios-specs.js', {read: false})
-    .pipe(mocha)
-    .on('error', console.error);
+  if(platform === 'ios') {
+    return gulp.src('lib/specs/test-ios-specs.js', {read: false})
+      .pipe(mocha)
+      .on('error', console.error);
+  } else if(platform === 'android') {
+    return gulp.src('lib/specs/test-android-specs.js', {read: false})
+      .pipe(mocha)
+      .on('error', console.error);
+  }
+}
+
+gulp.task('test-ios', function () {
+  return runTests('ios');
+});
+
+gulp.task('test-android', function () {
+  return runTests('android');
 });
 
 gulp.task('hello-world' , function () {
