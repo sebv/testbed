@@ -38,7 +38,7 @@ function runTests(platform) {
 
   if(platform === 'ios') {
     // ios version selection
-    var iosVersions = ['ios81', 'ios80', 'ios71', 'ios70'];
+    var iosVersions = ['ios81', 'ios80', 'ios71', 'ios70', 'ios61'];
     _.chain(iosVersions).filter(function (v) {
       return utils.booleanFlag(v, argv);
     }).each(function (v) {
