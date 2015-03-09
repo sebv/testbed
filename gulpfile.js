@@ -1,6 +1,8 @@
 "use strict";
 
-var argv = require('yargs').argv;
+var argv = require('yargs')
+  .string('appiumVersion')
+  .argv;
 
 var gulp = require('gulp'),
     jshint = require('gulp-jshint'),
