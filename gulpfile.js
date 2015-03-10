@@ -2,7 +2,9 @@
 
 var argv = require('yargs')
   .string('appiumVersion')
-  .argv;
+  .argv,
+  mergeStream = require('merge-stream'),
+  _ = require('lodash');
 
 var gulp = require('gulp'),
     jshint = require('gulp-jshint'),
@@ -10,12 +12,14 @@ var gulp = require('gulp'),
     utils = require('./lib/utils'),
     _ = require('lodash');
 
+var concurrency = argv.concurrency || 1;
+
 var newMocha = function(opts) {
   opts = opts || {};
   _.defaults(opts, {
-    concurrency: 1,
-    liveOutput: true,
-    errorSummary: false,
+    concurrency: concurrency,
+    liveOutput: concurrency === 1,
+    errorSummary: concurrency > 1,
     flags: ['--colors']
   });
   return mochaStream(opts);
@@ -79,13 +83,26 @@ function runTests(platform) {
     env.ORIENTATION = o.toLowerCase();
   }).value();
 
+  if(utils.booleanFlag('prevent-requeue', argv)) {
+    env.PREVENT_REQUEUE = 1;
+  }
+
   var mocha = newMocha({env: env});
+  var merged;
   if(platform === 'ios') {
-    return gulp.src('lib/specs/test-ios-specs.js', {read: false})
+    merged = new mergeStream();
+    _(concurrency).times(function() {
+      merged.add(gulp.src('lib/specs/test-ios-specs.js'));
+    }).value();
+    return merged
       .pipe(mocha)
       .on('error', console.error);
   } else if(platform === 'android') {
-    return gulp.src('lib/specs/test-android-specs.js', {read: false})
+    merged = new mergeStream();
+    _(concurrency).times(function() {
+      merged.add(gulp.src('lib/specs/test-android-specs.js'));
+    }).value();
+    return merged
       .pipe(mocha)
       .on('error', console.error);
   }
