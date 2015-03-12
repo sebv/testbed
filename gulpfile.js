@@ -66,6 +66,11 @@ function runTests(platform) {
   if(argv.appiumVersion) {
     env.APPIUM_VERSION = argv.appiumVersion;
   }
+  if(argv.customAppiumVersion) {
+    env.CUSTOM_APPIUM_VERSION = argv.customAppiumVersion;
+    // e.g. gulp test-ios --prod  --prevent-requeue --ios81 --cusstom-appium-version='{"appium-url": "bundle:appium/appium-v1.3.5.tar.bz2"}'
+  }
+
 
   // device selection
   var devices = ['iphone', 'ipad', 'phone', 'tablet'];
